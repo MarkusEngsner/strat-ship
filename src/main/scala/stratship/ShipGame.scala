@@ -6,38 +6,55 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import stratship.core.{Model, StartupData, ViewModel}
 
 @JSExportTopLevel("IndigoGame")
-class ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
+object ShipGame extends IndigoDemo[StartupData, Model] {
 
-  val config = GameConfig.default.withClearColor(ClearColor.Green)
+  val config: indigo.GameConfig = GameConfig.default.withClearColor(ClearColor.Green)
+
+  val magnification = 3
+  val animations: Set[Animation] = Set()
+  val fonts: Set[indigo.FontInfo] = Set()
 
   val assetName = AssetName("dots")
 
   val assets: Set[AssetType] = Set(AssetType.Image(assetName, AssetPath("assets/dots" +
     ".png")))
 
-  //  val animations: Set[Animation] = Set()
-  //  val fonts: Set[indigo.FontInfo] = Set()
-  override def boot(flags: Map[String, String]): BootResult[Unit] = BootResult.noData(config)
+  override def setup(
+             assetCollection: indigo.AssetCollection,
+             dice: indigo.Dice
+           ): indigo.Startup[indigo.StartupErrors, StartupData] =
+    Startup.Success(StartupData())
 
-  override def setup(bootData: Unit, assetCollection: AssetCollection, dice: Dice)
-  : Startup[StartupErrors, StartupData] = Startup.Success(StartupData())
+//  override def setup(assetCollection: AssetCollection, dice: Dice)
+//  : Startup[StartupErrors, StartupData] = Startup.Success(StartupData())
 
-  override def initialModel(startupData: StartupData): Model = Model.initial
+  override def initialModel(startupData: StartupData): Model =
+    Model.initial(config.viewport.giveDimensions(magnification).center)
 
-  override def initialViewModel(startupData: StartupData, model: Model): ViewModel =
-    ViewModel.initial
+//  override def initialViewModel(startupData: StartupData, model: Model): ViewModel =
+//    ViewModel.initial
 
-  override def updateModel(context: FrameContext, model: Model): GlobalEvent =>
-    Outcome[Model] = _ => Outcome((model))
 
-  //  override def updateViewModel(context: FrameContext, model: Model,
-  //                               viewModel: ViewModel): GlobalEvent =>
-  //    Outcome[ViewModel] = _ => Outcome(viewModel)
-  def updateViewModel(context: FrameContext, model: Model, viewModel: ViewModel)
-  : Outcome[ViewModel] = Outcome(viewModel)
+  override def updateModel(
+                   context: indigo.FrameContext[StartupData],
+                   model: Model
+                 ): indigo.GlobalEvent => indigo.Outcome[Model] = {
+    case MouseEvent.Click(x, y) =>
+      val adjustedPosition = Point(x, y) - model.center
+      Outcome( model )
 
-  override def present(context: FrameContext, model: Model, viewModel: ViewModel)
-  : SceneUpdateFragment = SceneUpdateFragment(Graphic(Rectangle(0, 0, 32, 32), 1,
-    Material.Textured(assetName)))
+    case FrameTick =>
+      Outcome(model.update(context.delta))
 
+    case _ =>
+      Outcome(model)
+  }
+
+  override def present(
+               context: indigo.FrameContext[StartupData],
+               model: Model
+             ): indigo.SceneUpdateFragment =
+    SceneUpdateFragment(
+      Graphic(Rectangle(0, 0, 32, 32), 1, Material.Textured(assetName))
+    )
 }

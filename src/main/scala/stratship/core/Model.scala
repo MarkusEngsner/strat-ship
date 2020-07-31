@@ -1,9 +1,10 @@
 package stratship.core
 
-final case class Model() {
+import indigo.{Point, Seconds}
 
+case class Model(center: Point) {
+  def update(timeDelta: Seconds): Model = this
 }
-
 object Model {
-  def initial: Model = Model()
+  def initial(center: Point): Model = Model(center)
 }
