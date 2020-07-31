@@ -6,7 +6,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import stratship.core.{Model, StartupData, ViewModel}
 
 @JSExportTopLevel("IndigoGame")
-object ShipGame extends IndigoDemo[StartupData, Model] {
+object ShipGame extends IndigoSandbox[StartupData, Model] {
 
   val config: indigo.GameConfig = GameConfig.default.withClearColor(ClearColor.Green)
 
