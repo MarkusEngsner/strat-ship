@@ -1,5 +1,3 @@
 package stratship.core
 
-final case class StartupData() {
-
-}
+final case class StartupData() {}
