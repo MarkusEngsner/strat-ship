@@ -125,13 +125,6 @@ object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
       )
     } else Nil
     SceneUpdateFragment(viewModel.button.draw :: box)
-      .addGameLayerNodes(
-        List[Graphic](
-          Graphic(Rectangle(0, 0, 512, 512), 1, Material.Textured(Assets.house))
-            .scaleBy(0.5, 0.5),
-          Graphic(Rectangle(30, 30, 32, 32), 1, Material.Textured(AssetName("tile"))),
-        )
-      )
       .addGameLayerNodes(drawBuildings(model.cityMap.buildings))
       .addGameLayerNodes(
         drawBackground(config.viewport.width, config.viewport.width, Tile.initial))
@@ -140,9 +133,7 @@ object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
 
   def drawBuildings(buildings: List[Building]): List[Graphic] = {
     buildings.map { b =>
-      Graphic(Rectangle(0, 0, 32, 32), 1, Material.Textured(Assets.baseTile))
-        .withRef(16, 16)
-        .moveTo(b.center)
+      Assets.clickBuilding.moveTo(b.center)
     }
   }
 

@@ -1,7 +1,8 @@
 package stratship.core
 
-import indigo.{AssetName, AssetPath, AssetType, Material, Graphic}
-import indigoextras.ui.{ButtonAssets, Button}
+import indigo.shared.datatypes.Rectangle
+import indigo.{AssetName, AssetPath, AssetType, Graphic, Material}
+import indigoextras.ui.{Button, ButtonAssets}
 
 object Assets {
 
@@ -53,6 +54,12 @@ object Assets {
       AssetType.Image(baseTile, AssetPath("assets/land_1.png")),
       AssetType.Image(house, AssetPath("assets/building_1.png")),
     )
+
+  val clickScale = 16
+  val clickBuilding =
+    Graphic(Rectangle(0, 0, 512, 512), 1, Material.Textured(Assets.house))
+      .withRef(256, 256)
+      .scaleBy(1.0 / clickScale, 1.0 / clickScale)
 
   val buttonAssets: ButtonAssets =
     ButtonAssets(
