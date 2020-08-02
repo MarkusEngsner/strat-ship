@@ -10,10 +10,9 @@ import indigoextras.ui.Button
 @JSExportTopLevel("IndigoGame")
 object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
 
-  val magnification = 2
-  val config: indigo.GameConfig = GameConfig.default
-    .withClearColor(ClearColor.Green)
-    .withMagnification(magnification)
+  val magnification = 1
+  val config: indigo.GameConfig =
+    GameConfig(GameViewport(1280, 720), 60, ClearColor.Green, magnification)
 
   override def eventFilters = EventFilters.Default
   val animations: Set[Animation] = Set()
@@ -73,8 +72,10 @@ object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
       context: indigo.FrameContext[StartupData],
       model: Model
   ): indigo.GlobalEvent => indigo.Outcome[Model] = {
-    case MouseEvent.Click(x, y) =>
+    case MouseEvent.Click(x, y) => {
+      println(Point(x, y))
       Outcome(model.addBuilding(Point(x, y)))
+    }
     case AssetBundleLoaderEvent.Started(key) =>
       println("Load started! " + key.toString())
       Outcome(model)
@@ -115,6 +116,14 @@ object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
     case _ => Outcome(viewModel)
   }
 
+  val background = {
+    val temp =
+      drawBackground(config.viewport.width, config.viewport.height, Tile.initial)
+    temp foreach (g => println(s"position: ${g.position}"))
+    println(s"Squares: " + temp.length)
+    Group(temp)
+  }
+
   override def present(context: indigo.FrameContext[StartupData],
                        model: Model,
                        viewModel: ViewModel): indigo.SceneUpdateFragment = {
@@ -126,8 +135,8 @@ object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
     } else Nil
     SceneUpdateFragment(viewModel.button.draw :: box)
       .addGameLayerNodes(drawBuildings(model.cityMap.buildings))
-      .addGameLayerNodes(
-        drawBackground(config.viewport.width, config.viewport.width, Tile.initial))
+      .addGameLayerNodes(background.moveTo(0, 0))
+//      .addGameLayerNodes(Graphic(Rectangle()))
 
   }
 
@@ -137,14 +146,19 @@ object ShipGame extends IndigoDemo[Unit, StartupData, Model, ViewModel] {
     }
   }
 
-  def drawBackground(pixelWidth: Int, pixelHeight: Int, tile: Tile): List[Graphic] = {
-    def createRect(x: Int, y: Int): Graphic =
-      Graphic(Rectangle(x, y, tile.width, tile.height),
-              tile.layer,
-              Material.Textured(tile.assetName))
+//  val bgClone = Clone(CloneId(), tile.layer, CloneTransformData())
 
-    val w = List.range(0, pixelWidth, tile.width)
-    val h = List.range(0, pixelHeight, tile.height)
+  def drawBackground(pixelWidth: Int, pixelHeight: Int, tile: Tile): List[Graphic] = {
+    def createRect(x: Int, y: Int): Graphic = {
+//      if (x > 480) println(x)
+      Graphic(Rectangle(0, 0, tile.width, tile.height),
+              tile.layer,
+              Material.Textured(tile.assetName)).moveTo(x, y)
+    }
+
+//    println(s"Width: $pixelWidth\tHeight: $pixelHeight")
+    val w = List.range(0, pixelWidth / magnification, tile.width)
+    val h = List.range(0, pixelHeight / magnification, tile.height)
     w collect (x => h collect (y => createRect(x, y))) flatMap (identity)
   }
 }
